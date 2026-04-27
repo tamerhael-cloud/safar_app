@@ -10,6 +10,7 @@ import 'users_management_screen.dart';
 import '../../services/user_service.dart';
 import 'visa_price_management_screen.dart';
 import 'admin_payment_methods_screen.dart';
+import '../../services/pdf_service.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -62,7 +63,33 @@ class AdminDashboardScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 _buildManagementGrid(context),
                 const SizedBox(height: 30),
-                const Text('آخر طلبات التأشيرة', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.safarBlue)),
+                const SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('آخر طلبات التأشيرة', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.safarBlue)),
+                    TextButton.icon(
+                      onPressed: () {
+                        final apps = VisaService().applications;
+                        double rev = 0; double cost = 0;
+                        for (var a in apps) {
+                          if (a.status != 'مرفوض' && a.status != 'تم رفض الدفع') {
+                            rev += a.price; cost += a.costPrice ?? 0;
+                          }
+                        }
+                        PdfService.generateStatementPdf(
+                          title: 'Safar App - Financial Statement',
+                          applications: apps,
+                          totalRevenue: rev,
+                          totalCost: cost,
+                          netProfit: rev - cost,
+                        );
+                      },
+                      icon: const Icon(Icons.picture_as_pdf),
+                      label: const Text('تصدير PDF'),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 16),
                 _buildVisaApplicationsList(),
                 const SizedBox(height: 30),
@@ -92,18 +119,42 @@ class AdminDashboardScreen extends StatelessWidget {
   }
 
   Widget _buildStatsOverview(BuildContext context) {
+    final apps = VisaService().applications;
+    double totalRevenue = 0;
+    double totalCost = 0;
+    
+    for (var app in apps) {
+      if (app.status != 'مرفوض' && app.status != 'تم رفض الدفع') {
+        totalRevenue += app.price;
+        totalCost += app.costPrice ?? 0;
+      }
+    }
+    double netProfit = totalRevenue - totalCost;
+
     return ListenableBuilder(
       listenable: UserService(),
-      builder: (context, _) => Row(
+      builder: (context, _) => Column(
         children: [
-          _buildStatCard('Total Sales', '\$42,500', Icons.monetization_on, Colors.green),
-          const SizedBox(width: 16),
-          _buildStatCard(
-            'Active Users', 
-            UserService().registeredUsers.length.toString(), 
-            Icons.people, 
-            Colors.blue,
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UsersManagementScreen())),
+          Row(
+            children: [
+              _buildStatCard('إجمالي المبيعات', '\$${totalRevenue.toStringAsFixed(0)}', Icons.monetization_on, Colors.green),
+              const SizedBox(width: 16),
+              _buildStatCard('إجمالي التكاليف', '\$${totalCost.toStringAsFixed(0)}', Icons.account_balance_wallet, Colors.red),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _buildStatCard('صافي الربح', '\$${netProfit.toStringAsFixed(0)}', Icons.trending_up, Colors.orange),
+              const SizedBox(width: 16),
+              _buildStatCard(
+                'المستخدمين', 
+                UserService().registeredUsers.length.toString(), 
+                Icons.people, 
+                Colors.blue,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UsersManagementScreen())),
+              ),
+            ],
           ),
         ],
       ),

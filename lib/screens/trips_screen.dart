@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../services/language_service.dart';
 import '../services/visa_service.dart';
@@ -79,7 +80,11 @@ class TripsScreen extends StatelessWidget {
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           onPressed: () async {
-                            await OpenFilex.open(app.approvedVisaFilePath!);
+                            if (app.approvedVisaFilePath!.startsWith('http')) {
+                              await launchUrl(Uri.parse(app.approvedVisaFilePath!));
+                            } else {
+                              await OpenFilex.open(app.approvedVisaFilePath!);
+                            }
                           },
                           icon: const Icon(Icons.download),
                           label: Text(lang.translate('عرض التأشيرة الصادرة', 'View Issued Visa')),

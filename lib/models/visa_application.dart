@@ -13,6 +13,8 @@ class VisaApplication {
   final String? passportFilePath;
   final DateTime submissionDate;
   String status;
+  double? costPrice; // The price you paid to the supplier
+  String? supplierName; // The name of the supplier
   
   // New fields for the approved visa document from Admin
   String? approvedVisaFileName;
@@ -45,6 +47,8 @@ class VisaApplication {
     this.paymentReceiptFileName,
     this.paymentReceiptFilePath,
     this.submittedBy,
+    this.costPrice,
+    this.supplierName,
   });
 
   Map<String, dynamic> toMap() {
@@ -67,6 +71,8 @@ class VisaApplication {
       'paymentReceiptFileName': paymentReceiptFileName,
       'paymentReceiptFilePath': paymentReceiptFilePath,
       'submittedBy': submittedBy,
+      'costPrice': costPrice,
+      'supplierName': supplierName,
     };
   }
 
@@ -99,6 +105,8 @@ class VisaApplication {
       paymentReceiptFileName: map['paymentReceiptFileName'],
       paymentReceiptFilePath: map['paymentReceiptFilePath'],
       submittedBy: map['submittedBy'],
+      costPrice: (map['costPrice'] ?? 0.0).toDouble(),
+      supplierName: map['supplierName'],
     );
   }
 }
