@@ -28,6 +28,7 @@ class _VisaApplicationScreenState extends State<VisaApplicationScreen> {
   PlatformFile? _pickedFile;
   bool _isSubmitting = false;
   bool _isScanning = false;
+  bool _termsAccepted = false;
 
   @override
   void initState() {
@@ -71,6 +72,11 @@ class _VisaApplicationScreenState extends State<VisaApplicationScreen> {
 
     if (name.isEmpty || motherName.isEmpty || nationality.isEmpty || visitedCountries.isEmpty || _selectedCountry == null || _selectedType == null) {
       _showError(lang.translate('يرجى ملء جميع الخانات', 'Please fill all fields'));
+      return;
+    }
+
+    if (!_termsAccepted) {
+      _showError(lang.translate('يجب الموافقة على شروط الفيزا أولاً', 'You must accept the terms first'));
       return;
     }
 
@@ -278,6 +284,35 @@ class _VisaApplicationScreenState extends State<VisaApplicationScreen> {
                     ],
                   ),
                 ),
+                if (_selectedType!.termsAr.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  _buildSectionTitle(lang.translate('شروط وأحكام التأشيرة', 'Terms & Conditions')),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[300]!),
+                    ),
+                    child: Text(
+                      lang.translate(_selectedType!.termsAr, _selectedType!.termsEn),
+                      style: const TextStyle(fontSize: 13, color: Colors.black87),
+                    ),
+                  ),
+                  CheckboxListTile(
+                    value: _termsAccepted,
+                    onChanged: (val) => setState(() => _termsAccepted = val ?? false),
+                    title: Text(
+                      lang.translate('أوافق على كافة الشروط المذكورة أعلاه', 'I agree to the terms mentioned above'),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                    activeColor: AppTheme.safarBlue,
+                  ),
+                ],
               ],
               const SizedBox(height: 32),
               _buildSectionTitle(lang.translate('المعلومات الشخصية', 'Personal Information')),
@@ -395,8 +430,12 @@ class _VisaApplicationScreenState extends State<VisaApplicationScreen> {
       width: double.infinity,
       height: 60,
       child: ElevatedButton(
-        onPressed: _isSubmitting ? null : _submitApplication,
-        style: ElevatedButton.styleFrom(backgroundColor: AppTheme.safarBlue, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+        onPressed: (_isSubmitting || !_termsAccepted) ? null : _submitApplication,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _termsAccepted ? AppTheme.safarBlue : Colors.grey, 
+          foregroundColor: Colors.white, 
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))
+        ),
         child: _isSubmitting ? const CircularProgressIndicator(color: Colors.white) : Text(lang.translate('تقديم الطلب الآن', 'Submit Now')),
       ),
     );

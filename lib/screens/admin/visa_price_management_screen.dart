@@ -116,16 +116,25 @@ class _VisaPriceManagementScreenState extends State<VisaPriceManagementScreen> {
   void _showAddVisaTypeDialog(BuildContext context, CountryVisaData country) {
     final titleArController = TextEditingController();
     final priceController = TextEditingController();
+    final termsController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('إضافة نوع لـ ${country.nameAr}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(controller: titleArController, decoration: const InputDecoration(labelText: 'نوع الفيزا (مثلاً: مستعجلة)')),
-            TextField(controller: priceController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'السعر (\$)')),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: titleArController, decoration: const InputDecoration(labelText: 'نوع الفيزا (مثلاً: مستعجلة)')),
+              TextField(controller: priceController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'السعر (\$)')),
+              const SizedBox(height: 12),
+              TextField(
+                controller: termsController, 
+                maxLines: 5, 
+                decoration: const InputDecoration(labelText: 'شروط الفيزا (تظهر للمستخدم)', border: OutlineInputBorder()),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
@@ -134,8 +143,10 @@ class _VisaPriceManagementScreenState extends State<VisaPriceManagementScreen> {
               final price = double.tryParse(priceController.text) ?? 0;
               country.types.add(VisaType(
                 titleAr: titleArController.text,
-                titleEn: titleArController.text, // Simplified
+                titleEn: titleArController.text,
                 price: price,
+                termsAr: termsController.text,
+                termsEn: termsController.text,
               ));
               VisaService().notifyListenersManual();
               Navigator.pop(context);
@@ -148,19 +159,35 @@ class _VisaPriceManagementScreenState extends State<VisaPriceManagementScreen> {
   }
 
   void _showEditPriceDialog(BuildContext context, VisaType type) {
-    final controller = TextEditingController(text: type.price.toString());
+    final priceController = TextEditingController(text: type.price.toString());
+    final termsController = TextEditingController(text: type.termsAr);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('تعديل السعر لـ ${type.titleAr}'),
-        content: TextField(controller: controller, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'السعر الجديد (\$)')),
+        title: Text('تعديل البيانات لـ ${type.titleAr}'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: priceController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'السعر الجديد (\$)')),
+              const SizedBox(height: 16),
+              TextField(
+                controller: termsController, 
+                maxLines: 5, 
+                decoration: const InputDecoration(labelText: 'تعديل الشروط', border: OutlineInputBorder()),
+              ),
+            ],
+          ),
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
           ElevatedButton(
             onPressed: () {
-              final newPrice = double.tryParse(controller.text);
+              final newPrice = double.tryParse(priceController.text);
               if (newPrice != null) {
                 type.price = newPrice;
+                type.termsAr = termsController.text;
+                type.termsEn = termsController.text;
                 VisaService().notifyListenersManual();
                 Navigator.pop(context);
               }
