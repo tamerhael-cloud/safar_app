@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "538661096817",
+    "project_id": "safar-de82e",
+    "storage_bucket": "safar-de82e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:538661096817:android:535109bfda92991b817ad0",
+        "android_client_info": {
+          "package_name": "com.example.safar_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9Dvf5IFkEX2Xf5GHOCZRGDZ56FBEYXII"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
