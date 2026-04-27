@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import '../../theme/app_theme.dart';
 import '../../services/visa_service.dart';
 import '../../models/visa_application.dart';
+import '../../services/suppliers_service.dart';
 
 class VisaManagementScreen extends StatefulWidget {
   const VisaManagementScreen({super.key});
@@ -144,6 +145,7 @@ class _VisaManagementScreenState extends State<VisaManagementScreen> {
   void _showApplicationDetails(BuildContext context, VisaApplication app) {
     final costController = TextEditingController(text: app.costPrice?.toString() ?? '');
     final supplierController = TextEditingController(text: app.supplierName ?? '');
+    final suppliersService = SuppliersService();
 
     showModalBottomSheet(
       context: context,
@@ -190,9 +192,14 @@ class _VisaManagementScreenState extends State<VisaManagementScreen> {
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: TextField(
-                      controller: supplierController,
-                      decoration: const InputDecoration(labelText: 'اسم المورد', border: OutlineInputBorder()),
+                    child: DropdownButtonFormField<String>(
+                      value: suppliersService.suppliers.any((s) => s.name == supplierController.text) ? supplierController.text : null,
+                      decoration: const InputDecoration(labelText: 'اختر المورد', border: OutlineInputBorder()),
+                      items: suppliersService.suppliers
+                          .where((s) => s.category == 'Visa')
+                          .map((s) => DropdownMenuItem(value: s.name, child: Text(s.name)))
+                          .toList(),
+                      onChanged: (v) => supplierController.text = v ?? '',
                     ),
                   ),
                 ],

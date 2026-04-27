@@ -12,6 +12,8 @@ import 'visa_price_management_screen.dart';
 import 'admin_payment_methods_screen.dart';
 import '../../services/pdf_service.dart';
 import 'suppliers_management_screen.dart';
+import 'bookings_management_screen.dart';
+import '../../services/booking_service.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -120,22 +122,33 @@ class AdminDashboardScreen extends StatelessWidget {
   }
 
   Widget _buildStatsOverview(BuildContext context) {
-    final apps = VisaService().applications;
-    double totalRevenue = 0;
-    double totalCost = 0;
-    
-    for (var app in apps) {
-      if (app.status != 'مرفوض' && app.status != 'تم رفض الدفع') {
-        totalRevenue += app.price;
-        totalCost += app.costPrice ?? 0;
-      }
-    }
-    double netProfit = totalRevenue - totalCost;
-
     return ListenableBuilder(
-      listenable: UserService(),
-      builder: (context, _) => Column(
-        children: [
+      listenable: Listenable.merge([VisaService(), BookingService(), UserService()]),
+      builder: (context, _) {
+        final apps = VisaService().applications;
+        final bookings = BookingService().bookings;
+        
+        double totalRevenue = 0;
+        double totalCost = 0;
+        
+        for (var app in apps) {
+          if (app.status != 'مرفوض' && app.status != 'تم رفض الدفع') {
+            totalRevenue += app.price;
+            totalCost += app.costPrice ?? 0;
+          }
+        }
+
+        for (var b in bookings) {
+          if (b.status == 'Confirmed') {
+            totalRevenue += b.price;
+            totalCost += b.costPrice ?? 0;
+          }
+        }
+        
+        double netProfit = totalRevenue - totalCost;
+
+        return Column(
+          children: [
           Row(
             children: [
               _buildStatCard('إجمالي المبيعات', '\$${totalRevenue.toStringAsFixed(0)}', Icons.monetization_on, Colors.green),
@@ -212,6 +225,9 @@ class AdminDashboardScreen extends StatelessWidget {
         }),
         _buildManageItem(context, 'رسوم الخدمة', Icons.percent, Colors.red, onTap: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const ServiceManagementScreen(title: 'الرسوم')));
+        }),
+        _buildManageItem(context, 'إدارة الحجوزات', Icons.library_books, Colors.blueGrey, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const BookingsManagementScreen()));
         }),
         _buildManageItem(context, 'إدارة الموردين', Icons.business, Colors.deepPurple, onTap: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const SuppliersManagementScreen()));
