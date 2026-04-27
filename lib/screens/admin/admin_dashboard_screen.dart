@@ -66,7 +66,6 @@ class AdminDashboardScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 _buildManagementGrid(context),
                 const SizedBox(height: 30),
-                const SizedBox(height: 30),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -149,29 +148,30 @@ class AdminDashboardScreen extends StatelessWidget {
 
         return Column(
           children: [
-          Row(
-            children: [
-              _buildStatCard('إجمالي المبيعات', '\$${totalRevenue.toStringAsFixed(0)}', Icons.monetization_on, Colors.green),
-              const SizedBox(width: 16),
-              _buildStatCard('إجمالي التكاليف', '\$${totalCost.toStringAsFixed(0)}', Icons.account_balance_wallet, Colors.red),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildStatCard('صافي الربح', '\$${netProfit.toStringAsFixed(0)}', Icons.trending_up, Colors.orange),
-              const SizedBox(width: 16),
-              _buildStatCard(
-                'المستخدمين', 
-                UserService().registeredUsers.length.toString(), 
-                Icons.people, 
-                Colors.blue,
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UsersManagementScreen())),
-              ),
-            ],
-          ),
-        ],
-      ),
+            Row(
+              children: [
+                _buildStatCard('إجمالي المبيعات', '\$${totalRevenue.toStringAsFixed(0)}', Icons.monetization_on, Colors.green),
+                const SizedBox(width: 16),
+                _buildStatCard('إجمالي التكاليف', '\$${totalCost.toStringAsFixed(0)}', Icons.account_balance_wallet, Colors.red),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                _buildStatCard('صافي الربح', '\$${netProfit.toStringAsFixed(0)}', Icons.trending_up, Colors.orange),
+                const SizedBox(width: 16),
+                _buildStatCard(
+                  'المستخدمين', 
+                  UserService().registeredUsers.length.toString(), 
+                  Icons.people, 
+                  Colors.blue,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UsersManagementScreen())),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
