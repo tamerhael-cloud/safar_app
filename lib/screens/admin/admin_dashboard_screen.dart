@@ -11,6 +11,7 @@ import '../../services/user_service.dart';
 import 'visa_price_management_screen.dart';
 import 'admin_payment_methods_screen.dart';
 import '../../services/pdf_service.dart';
+import 'suppliers_management_screen.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -212,8 +213,8 @@ class AdminDashboardScreen extends StatelessWidget {
         _buildManageItem(context, 'رسوم الخدمة', Icons.percent, Colors.red, onTap: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const ServiceManagementScreen(title: 'الرسوم')));
         }),
-        _buildManageItem(context, 'دردشة الدعم', Icons.chat_bubble, Colors.amber, onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const ServiceManagementScreen(title: 'الدعم')));
+        _buildManageItem(context, 'إدارة الموردين', Icons.business, Colors.deepPurple, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const SuppliersManagementScreen()));
         }),
       ],
     );

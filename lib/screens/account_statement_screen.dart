@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../services/visa_service.dart';
 import '../services/user_service.dart';
 import '../services/language_service.dart';
+import '../services/pdf_service.dart';
 
 class AccountStatementScreen extends StatelessWidget {
   const AccountStatementScreen({super.key});
@@ -22,6 +23,38 @@ class AccountStatementScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          ListenableBuilder(
+            listenable: visaService,
+            builder: (context, _) {
+              final currentUser = userService.userName;
+              final myTransactions = userService.role == UserRole.admin
+                  ? visaService.applications
+                  : visaService.applications.where((app) => 
+                      app.submittedBy == currentUser || app.submittedBy == null
+                    ).toList();
+              
+              if (myTransactions.isEmpty) return const SizedBox.shrink();
+              
+              return IconButton(
+                icon: const Icon(Icons.picture_as_pdf),
+                onPressed: () {
+                  double rev = 0; double cost = 0;
+                  for (var a in myTransactions) {
+                    rev += a.price; cost += a.costPrice ?? 0;
+                  }
+                  PdfService.generateStatementPdf(
+                    title: 'Account Statement - $currentUser',
+                    applications: myTransactions,
+                    totalRevenue: rev,
+                    totalCost: cost,
+                    netProfit: rev - cost,
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: ListenableBuilder(
         listenable: visaService,
