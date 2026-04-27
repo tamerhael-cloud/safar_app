@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../services/language_service.dart';
 import '../services/visa_service.dart';
+import '../services/user_service.dart';
 
 class TripsScreen extends StatelessWidget {
   const TripsScreen({super.key});
@@ -37,7 +38,14 @@ class TripsScreen extends StatelessWidget {
     return ListenableBuilder(
       listenable: VisaService(),
       builder: (context, _) {
-        final apps = VisaService().applications;
+        final userService = UserService();
+        final allApps = VisaService().applications;
+        
+        // Filter: Admin sees all, User sees only their own
+        final apps = userService.role == UserRole.admin 
+            ? allApps 
+            : allApps.where((app) => app.submittedBy == userService.userName).toList();
+
         if (apps.isEmpty) return const SizedBox.shrink();
 
         return Padding(

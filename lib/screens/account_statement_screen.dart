@@ -27,10 +27,12 @@ class AccountStatementScreen extends StatelessWidget {
         listenable: visaService,
         builder: (context, _) {
           final currentUser = userService.userName;
-          // Filter visas by the logged in user
-          final myTransactions = visaService.applications.where((app) => 
-            app.submittedBy == currentUser || app.submittedBy == null // Show nulls as legacy for now
-          ).toList();
+          // Filter: Admin sees all, User sees only their own
+          final myTransactions = userService.role == UserRole.admin
+              ? visaService.applications
+              : visaService.applications.where((app) => 
+                  app.submittedBy == currentUser || app.submittedBy == null
+                ).toList();
 
           if (myTransactions.isEmpty) {
             return Center(
